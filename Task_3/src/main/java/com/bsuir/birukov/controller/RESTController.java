@@ -1,121 +1,451 @@
-/*
 package com.bsuir.birukov.controller;
 
-public class RESTController {
-}
-*/
-package com.bsuir.birukov.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import com.bsuir.birukov.entity.*;
 import com.bsuir.birukov.repository.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.bsuir.birukov.util.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/ctrl")
 @Slf4j
-class Controller {
+public class RESTController {
     @Autowired
-    private AccountRepository accountRep;
-
-    @Autowired
-    private CategoryRepository categoryRep;
+    public AccountRepository accountRepository;
 
     @Autowired
-    private CustomerOrdersRepository custOrdRep;
+    public CategoryRepository categoryRepository;
 
     @Autowired
-    private CustomOrdersHasOrderRepository custOrdHasOrdRep;
+    public CustomerOrdersRepository custOrdRepository;
 
     @Autowired
-    private DeliveryRepository deliveryRep;
+    public CustomOrdersHasOrderRepository custOrdHasOrdRepository;
 
     @Autowired
-    private OrderRepository orderRep;
+    public DeliveryRepository deliveryRepository;
 
     @Autowired
-    private ProductRepository prodRep;
+    public OrderRepository orderRepository;
 
     @Autowired
-    private ProductHasCategoryRepository prodHasCatRep;
+    public ProductHasCategoryRepository prodHasCatRepository;
 
-    @GetMapping
-    public synchronized ResponseEntity<String> readNumberFromRequest(@RequestParam String notConvertedInteger)  {
+    @Autowired
+    public ProductRepository prodRepository;
 
-        /*requestCounter.incrementCounter();                                        //Инкрементация счётчика запросов
-        log.info("Thread - " + requestCounter.getName()+ "   //GET");
-        log.info("Received number[" + requestCounter.getCounter() + "] - " + notConvertedInteger);
+    public Account account = new Account();
+    public Category category = new Category();
+    public CustomerOrders customerOrders = new CustomerOrders();
+    public Delivery delivery = new Delivery();
+    public Order order = new Order();
+    public Product product = new Product();
 
-        if (cache.searchKey(notConvertedInteger)) {                             //Поиск значения notConvertedInteger в кэше
-            log.info("This key[" + notConvertedInteger + "] are exist");        //В случае нахождения значения в кэше, возврат данного
-            return ResponseEntity.ok(cache.getValue(notConvertedInteger));      //значения из кэша
+    @GetMapping("/database/{className}/{id}")
+    public synchronized ResponseEntity<String> getObjectsById(@PathVariable(value = "className") String className,
+                                                              @PathVariable(value = "id") String notConvertedID)  {
+        log.info("Start Get  By ID Method");
+        log.info("notConvertedID - " + notConvertedID);
+        log.info("className - " + className);
+
+        if(Objects.equals(className, account.getClass().getSimpleName())){
+            Optional<Account> objectsData;
+            objectsData = accountRepository.findById(FunctionUtil.validateID(notConvertedID));
+            log.info("objectsData - " + objectsData.toString());
+            if(objectsData.isPresent())
+                return ResponseEntity.ok(objectsData.toString());
+            return  ResponseEntity.ok("Null");
         }
 
-        Integer convertedInteger = new ArrayList<String>(Collections.singleton(notConvertedInteger)).stream()
-                .map(FunctionUtil::validateNumber)                      //Валидация входных параметров
-                .collect(Collectors.toList()).get(0);
-
-        Number objectOfNumber = new Number(convertedInteger);
-        log.info("objectOfNumber - " + objectOfNumber.getId() + ", " + objectOfNumber.getNumber());
-        if(numberRepository.existsById(convertedInteger)){
-            log.info("This data are exist in DataBase");
-//            return ResponseEntity.ok(objectOfNumber);
-        }else{
-            log.info("Send new data in DataBase");
-            numberRepository.save(objectOfNumber);                          //Добавление значений в БД
-            cache.addCacheValue(notConvertedInteger, objectOfNumber);       //Добавление значений в кэш
-            log.info("Data in cache: " + cache.toString());
-            log.info("CacheStat:"+ StatComputationClass.statComputation(cache));    //Вывод статистики имеющихся данных
+        if(Objects.equals(className, category.getClass().getSimpleName())){
+            Optional<Category> objectsData;
+            objectsData = categoryRepository.findById(FunctionUtil.validateID(notConvertedID));
+            log.info("objectsData - " + objectsData.toString());
+            if(objectsData.isPresent())
+                return ResponseEntity.ok(objectsData.toString());
+            return ResponseEntity.ok("Null");
         }
-*/
-        return ResponseEntity.ok("sdf");
+
+        if(Objects.equals(className, customerOrders.getClass().getSimpleName())){
+            Optional<CustomerOrders> objectsData;
+            objectsData = custOrdRepository.findById(FunctionUtil.validateID(notConvertedID));
+            log.info("objectsData - " + objectsData.toString());
+            if(objectsData.isPresent())
+                return ResponseEntity.ok(objectsData.toString());
+            return ResponseEntity.ok("Null");
+        }
+
+        if(Objects.equals(className, delivery.getClass().getSimpleName())){
+            Optional<Delivery> objectsData;
+            objectsData = deliveryRepository.findById(FunctionUtil.validateID(notConvertedID));
+            log.info("objectsData - " + objectsData.toString());
+            if(objectsData.isPresent())
+                return ResponseEntity.ok(objectsData.toString());
+            return ResponseEntity.ok("Null");
+        }
+
+        if(Objects.equals(className, order.getClass().getSimpleName())){
+            Optional<Order> objectsData;
+            objectsData = orderRepository.findById(FunctionUtil.validateID(notConvertedID));
+            log.info("objectsData - " + objectsData.toString());
+            if(objectsData.isPresent())
+                return ResponseEntity.ok(objectsData.toString());
+            return ResponseEntity.ok("Null");
+        }
+
+        if(Objects.equals(className, product.getClass().getSimpleName())){
+            Optional<Product> objectsData;
+            objectsData = prodRepository.findById(FunctionUtil.validateID(notConvertedID));
+            log.info("objectsData - " + objectsData.toString());
+            if(objectsData.isPresent())
+                return ResponseEntity.ok(objectsData.toString());
+            return ResponseEntity.ok("Null");
+        }
+
+        return ResponseEntity.ok("Class aren't exist"); // ok or notFound
     }
 
-    @PostMapping
-    public synchronized ResponseEntity<String> newNumber(@RequestBody Account acc){
-       /* requestCounter.incrementCounter();                              //Инкрементация счётчика запросов
-        log.info("Thread - " + requestCounter.getName()+ "   //POST");
-        log.info("Received Number object[" + requestCounter.getCounter() + "] - " + num.toString());
-        if(num.getNumber() == null){  throw new IllegalArgumentException("Error 400 - Bad Request");   }
-        Number objectOfNumber = new Number(new ArrayList<String>(Collections.singleton(num.getNumber().toString())).stream()
-                .map(FunctionUtil::validateNumber)                      //Валидация входных параметров
-                .collect(Collectors.toList()).get(0));
 
-        objectOfNumber.setId(num.getId());
-        log.info("object Of Number - " + objectOfNumber.getId().toString() + ", " + objectOfNumber.getNumber().toString());
-        try{     //Проверяем наличие значения в кэше
-            if (!cache.searchKey(objectOfNumber.getId().toString())){                    //Значение нет в кэше
-                if(numberRepository.existsById(objectOfNumber.getId()) &&
-                        numberRepository.getById(objectOfNumber.getId()).getNumber().equals(objectOfNumber.getNumber())){                 //Проверяем наличие в БД
-                    log.info("This data are exist in DataBase");
-                }else{
-                    log.info("Send new data in DataBase");
-                    numberRepository.save(objectOfNumber);                    //Запись данных в БД
-                    log.info("The value "+ objectOfNumber.getNumber().toString()+ " aren't exist and will be created");
-                    cache.addCacheValue(objectOfNumber.getNumber().toString(),objectOfNumber);   //Добавляем значение в кэш
-                    log.info("CacheStat:"+ StatComputationClass.statComputation(cache));         //Вывод статистики имеющихся данных
-                }
-                return ResponseEntity.ok(objectOfNumber);
-            }else{
-                if(cache.getValue(objectOfNumber.getId().toString()).getNumber()        //Замена значения в кэше и БД
-                        .equals(objectOfNumber.getNumber())) {
-                    log.info("This data are exist in cache (rewrite)");
-                    cache.deleteByID(objectOfNumber.getId().toString());                //Дописать
-                    cache.addCacheValue(objectOfNumber.getId().toString(),objectOfNumber);
-                    numberRepository.save(objectOfNumber);
-                    return ResponseEntity.ok(objectOfNumber);
-                }
-                throw new Exception();
+    @GetMapping("/database")
+    public synchronized ResponseEntity<String> getAllValuesFromTable(@RequestParam String nameOfTable){
+
+        log.info("Start Get All Method");
+
+        if(Objects.equals(nameOfTable, account.getClass().getSimpleName())){
+            List<Account> objectsData;
+            objectsData = accountRepository.findAll();
+            String outString = FunctionUtil.convertListToString(objectsData);
+            return ResponseEntity.ok(outString);
+        }
+
+        if(Objects.equals(nameOfTable, category.getClass().getSimpleName())){
+            List<Category> objectsData;
+            objectsData = categoryRepository.findAll();
+            String outString = FunctionUtil.convertListToString(objectsData);
+            return ResponseEntity.ok(outString);
+        }
+
+        if(Objects.equals(nameOfTable, customerOrders.getClass().getSimpleName())){
+            List<CustomerOrders> objectsData;
+            objectsData = custOrdRepository.findAll();
+            String outString = FunctionUtil.convertListToString(objectsData);
+            return ResponseEntity.ok(outString);
+        }
+
+        if(Objects.equals(nameOfTable, delivery.getClass().getSimpleName())){
+            List<Delivery> objectsData;
+            objectsData = deliveryRepository.findAll();
+            String outString = FunctionUtil.convertListToString(objectsData);
+            return ResponseEntity.ok(outString);
+        }
+
+        if(Objects.equals(nameOfTable, order.getClass().getSimpleName())){
+            List<Order> objectsData;
+            objectsData = orderRepository.findAll();
+            String outString = FunctionUtil.convertListToString(objectsData);
+            return ResponseEntity.ok(outString);
+        }
+
+        if(Objects.equals(nameOfTable, product.getClass().getSimpleName())){
+            List<Product> objectsData;
+            objectsData =  prodRepository.findAll();
+            String outString = FunctionUtil.convertListToString(objectsData);
+            return ResponseEntity.ok(outString);
+        }
+
+        return ResponseEntity.ok("Class aren't exist");
+    }
+
+    @PostMapping("/database/{className}/")
+    public synchronized ResponseEntity<String> addNewValue(@PathVariable(value = "className") String className,
+                                                           @RequestBody Object object) throws SQLException, ParseException {
+
+        log.info("Start Post method");
+        log.info("className - " + className);
+        log.info("category.toString() - " + category.getClass().getSimpleName());
+        log.info("object.class - " + object.getClass().getSimpleName());
+        log.info("object - " + object);
+
+        if(Objects.equals(className, account.getClass().getSimpleName())){
+            log.info("it's account");
+
+            Account obj = new Account(object);
+            log.info("account created");
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value in object is Null");
             }
-        }catch(Exception e){                                                  //Значения есть в кэше
-            log.info("The value "+ objectOfNumber.getNumber().toString() + " are exist in cache");
-            return ResponseEntity.ok(cache.getValue(objectOfNumber.getNumber().toString()));
-        }*/
-        return ResponseEntity.ok("qwe");
+            accountRepository.save(obj);
+            log.info("account obj saved");
+            return ResponseEntity.ok(obj.toString());
+        }
+
+        if(Objects.equals(className, category.getClass().getSimpleName())){
+            log.info("it's category");
+
+            Category obj = new Category(object);
+            log.info("category created");
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value is Null");
+            }
+            categoryRepository.save(obj);
+            log.info("category obj saved");
+            return ResponseEntity.ok(obj.toString());
+        }
+
+        if(Objects.equals(className, customerOrders.getClass().getSimpleName())){
+            CustomerOrders obj = new CustomerOrders(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value is Null");
+            }
+            custOrdRepository.save(obj);
+            return ResponseEntity.ok(obj.toString());
+        }
+
+        if(Objects.equals(className, delivery.getClass().getSimpleName())){
+            Delivery obj = new Delivery(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value is Null");
+            }
+            deliveryRepository.save(obj);
+            return ResponseEntity.ok(obj.toString());
+        }
+
+        if(Objects.equals(className, order.getClass().getSimpleName())){
+            Order obj = new Order(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value is Null");
+            }
+            orderRepository.save(obj);
+            return ResponseEntity.ok(obj.toString());
+        }
+
+        if(Objects.equals(className, product.getClass().getSimpleName())){
+            Product obj = new Product(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value is Null");
+            }
+            prodRepository.save(obj);
+            return ResponseEntity.ok(obj.toString());
+        }
+
+        return ResponseEntity.ok("Class aren't exist");
+    }
+
+    @PostMapping("/database/Product/{id}/Category")
+    public synchronized ResponseEntity<String> addCategoryToProduct(@PathVariable(value = "id") String notConvertedProdID,
+                                                                    @RequestBody String notConvertedCatID){
+        int ProdID = FunctionUtil.validateID(notConvertedProdID);
+        int CatID = FunctionUtil.validateID(notConvertedCatID);
+//        prodHasCatRepository.save(ProdID, CatID);
+
+        return ResponseEntity.ok("Error. Can't add category to this product");
+    }
+
+
+    @PutMapping("/database/{className}/")
+    public synchronized ResponseEntity<String> updateValueInTable(@PathVariable(value = "className") String className,
+                                                                  @RequestBody Object object) throws SQLException, ParseException {
+
+        log.info("Start Put method");
+        log.info("className - " + className);
+        log.info("object.class - " + object.getClass().getSimpleName());
+
+        if(Objects.equals(className, account.getClass().getSimpleName())){
+            Account obj = new Account(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value in object is Null");
+            }
+            Optional<Account> objectsData;
+            objectsData = Optional.of(accountRepository.findById(obj.getAccount_id())
+                    .map(x -> {
+                        x.setAccount_id(obj.getAccount_id());
+                        x.setFull_name(obj.getFull_name());
+                        x.setEmail(obj.getEmail());
+                        x.setPassword(obj.getPassword());
+                        x.setPhone_number(obj.getPhone_number());
+                        x.setAddress(obj.getAddress());
+                        return accountRepository.save(x);
+                    })
+                    .orElseGet(() -> {
+                        obj.setAccount_id(obj.getAccount_id());
+                        return accountRepository.save(obj);
+                    }));
+            log.info("objectsData - " + objectsData);
+            return ResponseEntity.ok(objectsData.toString());
+        }
+
+        if(Objects.equals(className, category.getClass().getSimpleName())){
+            Category obj = new Category(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value in object is Null");
+            }
+            Optional<Category> objectsData;
+            objectsData = Optional.of(categoryRepository.findById(obj.getCategory_id())
+                    .map(x -> {
+                        x.setCategory_id(obj.getCategory_id());
+                        x.setName(obj.getName());
+                        x.setNum_of_categories(obj.getNum_of_categories());
+                        x.setDescriptions(obj.getDescriptions());
+                        return categoryRepository.save(x);
+                    })
+                    .orElseGet(() -> {
+                        obj.setCategory_id(obj.getCategory_id());
+                        return categoryRepository.save(obj);
+                    }));
+            log.info("objectsData - " + objectsData);
+            return ResponseEntity.ok(objectsData.toString());
+        }
+
+        if(Objects.equals(className, customerOrders.getClass().getSimpleName())){
+            CustomerOrders obj = new CustomerOrders(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value in object is Null");
+            }
+            Optional<CustomerOrders> objectsData;
+            objectsData = Optional.of(custOrdRepository.findById(obj.getCustom_order_id())
+                    .map(x -> {
+                        x.setCustom_order_id(obj.getCustom_order_id());
+                        x.setAccount_id(obj.getAccount_id());
+                        x.setDelivery_id(obj.getDelivery_id());
+                        x.setNum_of_orders(obj.getNum_of_orders());
+                        x.setShipping(obj.getShipping());
+                        x.setStatus(obj.getStatus());
+                        return custOrdRepository.save(x);
+                    })
+                    .orElseGet(() -> {
+                        obj.setCustom_order_id(obj.getCustom_order_id());
+                        return custOrdRepository.save(obj);
+                    }));
+            log.info("objectsData - " + objectsData);
+            return ResponseEntity.ok(objectsData.toString());
+        }
+
+        if(Objects.equals(className, delivery.getClass().getSimpleName())){
+            Delivery obj = new Delivery(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value in object is Null");
+            }
+            Optional<Delivery> objectsData;
+            objectsData = Optional.of(deliveryRepository.findById(obj.getDelivery_id())
+                    .map(x -> {
+                        x.setDelivery_id(obj.getDelivery_id());
+                        x.setName(obj.getName());
+                        x.setTime_of_order(obj.getTime_of_order());
+                        x.setPrice(obj.getPrice());
+                        x.setStatus(obj.getStatus());
+                        return deliveryRepository.save(x);
+                    })
+                    .orElseGet(() -> {
+                        obj.setDelivery_id(obj.getDelivery_id());
+                        return deliveryRepository.save(obj);
+                    }));
+            log.info("objectsData - " + objectsData);
+            return ResponseEntity.ok(objectsData.toString());
+        }
+
+        if(Objects.equals(className, order.getClass().getSimpleName())){
+            Order obj = new Order(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value in object is Null");
+            }
+            Optional<Order> objectsData;
+            objectsData = Optional.of(orderRepository.findById(obj.getOrder_id())
+                    .map(x -> {
+                        x.setOrder_id(obj.getOrder_id());
+                        x.setProduct_id(obj.getProduct_id());
+                        x.setName(obj.getName());
+                        x.setDate_time(obj.getDate_time());
+                        x.setNotes(obj.getNotes());
+                        x.setQuantity(obj.getQuantity());
+                        x.setPrice(obj.getPrice());
+                        return orderRepository.save(x);
+                    })
+                    .orElseGet(() -> {
+                        obj.setOrder_id(obj.getOrder_id());
+                        return orderRepository.save(obj);
+                    }));
+            log.info("objectsData - " + objectsData);
+            return ResponseEntity.ok(objectsData.toString());
+        }
+
+        if(Objects.equals(className, product.getClass().getSimpleName())){
+            Product obj = new Product(object);
+            if(!obj.notNull()){
+                return ResponseEntity.ok("Some value in object is Null");
+            }
+            Optional<Product> objectsData;
+            objectsData = Optional.of(prodRepository.findById(obj.getProduct_id())
+                    .map(x -> {
+                        x.setProduct_id(obj.getProduct_id());
+                        x.setName(obj.getName());
+                        x.setManufactorer(obj.getManufactorer());
+                        x.setWidth(obj.getWidth());
+                        x.setHeight(obj.getHeight());
+                        x.setWeight(obj.getWeight());
+                        x.setPrice(obj.getPrice());
+                        return prodRepository.save(x);
+                    })
+                    .orElseGet(() -> {
+                        obj.setProduct_id(obj.getProduct_id());
+                        return prodRepository.save(obj);
+                    }));
+            log.info("objectsData - " + objectsData);
+            return ResponseEntity.ok(objectsData.toString());
+        }
+
+        return ResponseEntity.ok("Class aren't exist");
+    }
+
+    @DeleteMapping("/database/{className}/{id}")
+    public synchronized ResponseEntity<String> deleteValueFromTable(@PathVariable(value = "className") String className,
+                                                                    @PathVariable(value = "id") String notConvertedID) {
+        int id = FunctionUtil.validateID(notConvertedID);
+
+        if(Objects.equals(className, account.getClass().getSimpleName())){
+            accountRepository.deleteById(id);
+            return ResponseEntity.ok("delete "+id+" object in Table - " + className);
+        }
+
+        if(Objects.equals(className, category.getClass().getSimpleName())){
+            categoryRepository.deleteById(id);
+            return ResponseEntity.ok("delete "+id+" object in Table - " + className);
+        }
+
+        if(Objects.equals(className, customerOrders.getClass().getSimpleName())){
+            custOrdRepository.deleteById(id);
+            return ResponseEntity.ok("delete "+id+" object in Table - " + className);
+        }
+
+        if(Objects.equals(className, delivery.getClass().getSimpleName())){
+            deliveryRepository.deleteById(id);
+            return ResponseEntity.ok("delete "+id+" object in Table - " + className);
+        }
+
+        if(Objects.equals(className, order.getClass().getSimpleName())){
+            orderRepository.deleteById(id);
+            return ResponseEntity.ok("delete "+id+" object in Table - " + className);
+        }
+
+        if(Objects.equals(className, product.getClass().getSimpleName())){
+            prodRepository.deleteById(id);
+            return ResponseEntity.ok("delete "+id+" object in Table - " + className);
+        }
+
+        return ResponseEntity.ok("Class aren't exist");
     }
 }
