@@ -10,5 +10,7 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Integer> {       //Набор стандартных методов
     Optional<Product> findById(Integer id);
+//    List<Product> findAllCategoryIDsById(Integer id);
+//    void deleteAllCategoryById();
     List<Product> findAll();
 }

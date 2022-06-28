@@ -27,7 +27,7 @@ public class Product {
             name = "product_has_category",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
-    Set<Category> has_category;
+    Set<Category> categoryIDs;
 
     @Column(name = "name")
     private String name;

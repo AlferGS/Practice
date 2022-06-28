@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -20,6 +21,13 @@ public class CustomerOrders {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "custom_order_id")
     private int custom_order_id;
+
+    @ManyToMany
+    @JoinTable(
+            name = "customer_orders_has_order",
+            joinColumns = @JoinColumn(name = "custom_order_id"),
+            inverseJoinColumns = @JoinColumn(name = "order_id"))
+    Set<Order> orderIDs;
 
     @Column(name = "account_id")
     private int account_id;

@@ -22,12 +22,8 @@ public class Category {
     @Column(name = "category_id")
     private int category_id;
 
-    @ManyToMany
-    @JoinTable(
-            name = "product_has_category",
-            joinColumns = @JoinColumn(name = "category_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id"))
-    Set<Product> has_product;
+    @ManyToMany(mappedBy = "categoryIDs")
+    Set<Product> productIDs;
 
     @Column(name = "name")
     private String name;
@@ -105,4 +101,11 @@ public class Category {
             return false;
         return true;
     }
+
+//    public Set<Product> delProductIDsById(Set<Product> productIDs,Integer id){
+//        for(int i = 0; i< productIDs.size(); i++){
+//            productIDs.removeIf(product_id->category_id==id);
+//        }
+//        return productIDs;
+//    }
 }

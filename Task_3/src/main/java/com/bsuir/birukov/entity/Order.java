@@ -5,14 +5,10 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -26,6 +22,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "order_id")
     private int order_id;
+
+    @ManyToMany(mappedBy = "orderIDs")
+    Set<CustomerOrders> custOrderIDs;
 
     @Column(name = "product_id")
     private int product_id;
@@ -45,7 +44,8 @@ public class Order {
     @Column(name = "price")
     private float price;
 
-    public Order(Object object) throws SQLException, ParseException {
+    public Order(Object object) {
+        System.out.println("Start Order(obj)");
         List<String> valuesName = new ArrayList<>() {
             {
                 add("order_id");
@@ -56,9 +56,6 @@ public class Order {
                 add("quantity");
                 add("price");
             } };
-
-        DateFormat formatter = new SimpleDateFormat("dd-MMM-yy");
-        ResultSet rs = null;
 
         for(int k = 0, x = 0; k < valuesName.size(); k++){
             int idxValue = object.toString().indexOf("=", x) + 1;
@@ -71,15 +68,13 @@ public class Order {
             if(k == 0) this.order_id =  Integer.parseInt(substring);
             if(k == 1) this.product_id =  Integer.parseInt(substring);
             if(k == 2) this.name =  substring;
-            if(k == 3) {
-                assert false;
-                this.date_time =  (Date) formatter.parse(String.valueOf(rs.getDate(substring)));
-            }
+            if(k == 3) this.date_time = Date.valueOf(substring);
             if(k == 4) this.notes =  substring;
             if(k == 5) this.quantity =  Integer.parseInt(substring);
             if(k == 6) this.price =  Float.parseFloat(substring);
             x = idxValueDevider + 1;
         }
+        System.out.println("End Order(obj)");
     }
 
     // Without column notes
@@ -117,6 +112,7 @@ public class Order {
     }
 
     public boolean notNull(){
+        System.out.println("Start notNull");
         if(this.order_id <= 0)
             return  false;
         if(this.product_id <= 0)
@@ -127,6 +123,7 @@ public class Order {
             return false;
         if(this.price <= 0)
             return false;
+        System.out.println("End notNull");
         return true;
     }
 }
